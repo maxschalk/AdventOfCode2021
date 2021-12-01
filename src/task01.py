@@ -86,6 +86,8 @@ def solve_part_two_galaxybrain(measurements):
     prev_window = [0] * window_length
     window = [0] * window_length
 
+    measurements = iter(measurements)
+
     for i in range(window_length):
         measurement = measurements.__next__()
 
@@ -94,7 +96,7 @@ def solve_part_two_galaxybrain(measurements):
 
     list_shift(window, measurements.__next__())
 
-    for measurement in measurements[window_length + 1:]:
+    for measurement in measurements:
         list_shift(prev_window, window[-1])
         list_shift(window, measurement)
         count += sum(window) > sum(prev_window)
