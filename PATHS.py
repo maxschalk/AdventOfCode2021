@@ -5,3 +5,5 @@ ROOT_DIR = Path(__file__).parent
 SRC_DIR = ROOT_DIR.joinpath("src")
 INPUT_DIR = ROOT_DIR.joinpath("inputs")
 TEST_INPUT_DIR = ROOT_DIR.joinpath("test_inputs")
+
+BOILERPLATE_FILE = SRC_DIR.joinpath("task00_boilerplate.py")
