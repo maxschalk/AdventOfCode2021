@@ -25,24 +25,23 @@ def read_input():
 
 
 def normalize_input(data):
-    return data
+    convert = lambda t: (t[0], int(t[1]))
+    return list(map(convert, map(str.split, data)))
 
 
 def solve_test(data):
     with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
+        print(f"Part 1: {calculate_position_part_one(data)}")
 
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
+        print(f"Part 2: {calculate_position_part_two(data)}")
 
 
 def solve_part_one(data):
-    print(_solve_part_one(data))
+    print(combine_position(calculate_position_part_one(data)))
 
 
 def solve_part_two(data):
-    print(_solve_part_two(data))
+    print(combine_position(calculate_position_part_two(data)))
 
 
 def main(test=False):
@@ -55,8 +54,9 @@ def main(test=False):
     if TEST:
         solve_test(data)
     else:
-        solve_part_one(data)
-        solve_part_two(data)
+        with suppress(NotImplementedError):
+            solve_part_one(data)
+            solve_part_two(data)
 
 
 if __name__ == '__main__':
@@ -65,9 +65,38 @@ if __name__ == '__main__':
 
 # LOGIC / SOLUTION
 
-def _solve_part_one(data):
-    raise NotImplementedError
+def calculate_position_part_one(data):
+    x = 0
+    depth = 0
+    for direction, length in data:
+        match direction:
+            case 'forward':
+                x += length
+            case 'up':
+                depth -= length
+            case 'down':
+                depth += length
+
+    return x, depth
 
 
-def _solve_part_two(data):
-    raise NotImplementedError
+def combine_position(position):
+    x, depth = position
+    return x * depth
+
+
+def calculate_position_part_two(data):
+    x = 0
+    depth = 0
+    aim = 0
+    for command, value in data:
+        match command:
+            case 'down':
+                aim += value
+            case 'up':
+                aim -= value
+            case 'forward':
+                x += value
+                depth += (value * aim)
+
+    return x, depth
