@@ -30,19 +30,17 @@ def normalize_input(data):
 
 def solve_test(data):
     with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
+        print(f"Part 1 - {calc_power_consumption(data)}")
 
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
+        print(f"Part 2 - {verify_life_support_rating(data)}")
 
 
 def solve_part_one(data):
-    print(_solve_part_one(data))
+    print(calc_power_consumption(data))
 
 
 def solve_part_two(data):
-    print(_solve_part_two(data))
+    print(verify_life_support_rating(data))
 
 
 def main(test=False):
@@ -65,9 +63,81 @@ if __name__ == '__main__':
 
 # LOGIC / SOLUTION
 
-def _solve_part_one(data):
-    raise NotImplementedError
+def count_bit_occurences(data, position=None):
+    if position is None:
+        return _count_all_bits(data)
+
+    return _count_single_bit(data, position)
 
 
-def _solve_part_two(data):
-    raise NotImplementedError
+def _count_all_bits(data):
+    bits = len(data[0])
+    bit_counts = [[0, 0] for _ in range(bits)]
+
+    for line in data:
+        for bit, count in zip(line, bit_counts):
+            count[int(bit)] += 1
+
+    return bit_counts
+
+
+def _count_single_bit(data, position):
+    if position >= len(data[0]):
+        raise ValueError("Position out of bounds")
+
+    bit_counts = [0, 0]
+
+    for line in data:
+        bit_counts[int(line[position])] += 1
+
+    return bit_counts
+
+
+def calc_power_consumption(data):
+    bit_counts = count_bit_occurences(data)
+
+    most_common_bits = [('0', '1')[c1 > c0] for c0, c1 in bit_counts]
+    gamma_rate = str.join('', most_common_bits)
+
+    epsilon_rate = str.join('', ('1' if c == '0' else '0' for c in gamma_rate))
+
+    return int(gamma_rate, 2) * int(epsilon_rate, 2)
+
+
+def verify_life_support_rating(data):
+    filtered_data = data[:]
+
+    for i in range(len(filtered_data[0])):
+        bit_counts = count_bit_occurences(filtered_data, i)
+
+        c0, c1 = bit_counts
+
+        most_common_bit = '0' if c0 > c1 else '1'
+
+        filtered_data = list(filter(lambda b: b[i] == most_common_bit, filtered_data))
+
+        if len(filtered_data) == 1:
+            break
+
+    oxygen_generator_rating, *_ = filtered_data
+
+    filtered_data = data[:]
+
+    for i in range(len(filtered_data[0])):
+        bit_counts = count_bit_occurences(filtered_data, i)
+
+        c0, c1 = bit_counts
+
+        least_common_bit = '1' if c1 < c0 else '0'
+
+        filtered_data = list(filter(lambda b: b[i] == least_common_bit, filtered_data))
+
+        if len(filtered_data) == 1:
+            break
+
+    co2_scrubber_rating, *_ = filtered_data
+
+    return int(oxygen_generator_rating, 2) * int(co2_scrubber_rating, 2)
+
+
+
