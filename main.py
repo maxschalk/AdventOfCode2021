@@ -1,4 +1,4 @@
-from src.task03 import main as run_task
+from src.task04 import main as run_task
 
 
 # https://adventofcode.com/2021/
