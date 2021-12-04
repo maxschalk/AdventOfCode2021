@@ -65,12 +65,12 @@ if __name__ == '__main__':
 
 def count_bit_occurences(data, position=None):
     if position is None:
-        return _count_all_bits(data)
+        return _count_all_bit_positions(data)
 
-    return _count_single_bit(data, position)
+    return _count_single_bit_position(data, position)
 
 
-def _count_all_bits(data):
+def _count_all_bit_positions(data):
     bits = len(data[0])
     bit_counts = [[0, 0] for _ in range(bits)]
 
@@ -81,7 +81,7 @@ def _count_all_bits(data):
     return bit_counts
 
 
-def _count_single_bit(data, position):
+def _count_single_bit_position(data, position):
     if position >= len(data[0]):
         raise ValueError("Position out of bounds")
 
@@ -97,6 +97,7 @@ def calc_power_consumption(data):
     bit_counts = count_bit_occurences(data)
 
     most_common_bits = [('0', '1')[c1 > c0] for c0, c1 in bit_counts]
+
     gamma_rate = str.join('', most_common_bits)
 
     epsilon_rate = str.join('', ('1' if c == '0' else '0' for c in gamma_rate))
