@@ -37,6 +37,12 @@ def solve_test(data):
             print(f"Part 2: {line}: {_solve_part_two(line)}")
 
 
+def solve(data):
+    with suppress(NotImplementedError):
+        solve_part_one(data)
+        solve_part_two(data)
+
+
 def solve_part_one(data):
     print(_solve_part_one(data))
 
@@ -55,8 +61,7 @@ def main(test=False):
     if TEST:
         solve_test(data)
     else:
-        solve_part_one(data)
-        solve_part_two(data)
+        solve(data)
 
 
 if __name__ == '__main__':
