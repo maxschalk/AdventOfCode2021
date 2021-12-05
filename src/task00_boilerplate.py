@@ -24,7 +24,7 @@ def read_input():
     return lines
 
 
-def normalize_input(data):
+def parse_input(data, test):
     return data
 
 
@@ -56,7 +56,7 @@ def main(test=False):
     TEST = test
 
     data = read_input()
-    data = normalize_input(data)
+    data = parse_input(data, test)
 
     if TEST:
         solve_test(data)
