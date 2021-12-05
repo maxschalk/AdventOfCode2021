@@ -1,3 +1,5 @@
+import re
+
 from pathlib import Path
 from contextlib import suppress
 
@@ -25,16 +27,25 @@ def read_input():
 
 
 def parse_input(data, test):
-    return data
+    out = []
+
+    for line in data:
+        matches = re.match(r"(\d+,\d+) -> (\d+,\d+)", line)
+        start, end = matches.groups()
+
+        start = tuple(map(int, start.split(',')))
+        end = tuple(map(int, end.split(',')))
+
+        out.append((start, end))
+
+    return out
 
 
 def solve_test(data):
     with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
+        print(f"Part 1 - {_solve_part_one(data)}")
 
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
+        print(f"Part 2 - {_solve_part_two(data)}")
 
 
 def solve(data):
@@ -71,8 +82,58 @@ if __name__ == '__main__':
 # LOGIC / SOLUTION
 
 def _solve_part_one(data):
-    raise NotImplementedError
+    lines = list(filter(is_one_dimensional, data))
+
+    return _solve(lines)
 
 
 def _solve_part_two(data):
-    raise NotImplementedError
+    return _solve(data)
+
+
+def _solve(coordinates):
+    width = max(map(lambda t: max(t[0][0], t[1][0]), coordinates)) + 1
+    height = max(map(lambda t:  max(t[0][1], t[1][1]), coordinates)) + 1
+
+    grid = [[0] * width for _ in range(height)]
+
+    _mark_coordinates(grid, coordinates)
+
+    result = 0
+
+    for row in grid:
+        # print(str.join('', map(str, row)).replace('0', '.'))
+        result += len(tuple(filter(lambda x: x >= 2, row)))
+
+    return result
+
+
+def is_one_dimensional(coordinates):
+    (start_x, start_y), (end_x, end_y) = coordinates
+
+    return start_x == end_x or start_y == end_y
+
+
+def _mark_coordinates(grid, lines):
+    for coordinates in lines:
+        for x, y in line_coordinates(coordinates):
+            grid[y][x] += 1
+
+
+def line_coordinates(coordinates):
+    (start_x, start_y), (end_x, end_y) = coordinates
+
+    length = max(abs(start_x - end_x), abs(start_y - end_y)) + 1
+
+    xs = (start_x,) * length if start_x == end_x else list(range(*_range_args(start_x, end_x)))
+    ys = (start_y,) * length if start_y == end_y else list(range(*_range_args(start_y, end_y)))
+
+    return zip(xs, ys)
+
+
+def _range_args(start, end):
+    if start <= end:
+        return start, end + 1, 1
+    else:
+        return start, end - 1, -1
+
