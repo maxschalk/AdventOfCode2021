@@ -1,5 +1,6 @@
 import re
 
+from collections import Counter
 from pathlib import Path
 from contextlib import suppress
 
@@ -38,16 +39,11 @@ def read_input(test: bool):
 
 
 def parse_input(data, test):
-    out = []
+    pattern = re.compile(r",")
 
-    pattern = re.compile(r"(?s)(.+)")
+    result = pattern.split(data[0])
 
-    for line in data:
-        result = pattern.match(line).groups()
-
-        out.append(result)
-
-    return out
+    return list(map(int, result))
 
 
 def solve_test(data):
@@ -57,17 +53,6 @@ def solve_test(data):
         print('-' * 30)
 
         print(f"Part 2 - {_solve_part_two(data)}")
-
-
-def solve_test_individual_lines(data):
-    with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
-
-        print('-' * 30)
-
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
 
 
 def solve(data):
@@ -84,11 +69,39 @@ def solve_part_two(data):
     print(_solve_part_two(data))
 
 
-# LOGIC / SOLUTION
+# SOLUTION
+
+REPRODUCTION_CYCLE = 6
+
+FIRST_CYCLE_DELAY = 2
+
+FIRST_REPRODUCTION_CYCLE = REPRODUCTION_CYCLE + FIRST_CYCLE_DELAY
+
 
 def _solve_part_one(data):
-    raise NotImplementedError
+    return fish_after_days(data[:], 80)
 
 
 def _solve_part_two(data):
-    raise NotImplementedError
+    return fish_after_days(data[:], 256)
+
+
+def fish_after_days(fish_ages, days):
+    ages = {age: 0 for age in range(-1, FIRST_REPRODUCTION_CYCLE + 1)}
+
+    for age, count in Counter(fish_ages).items():
+        ages[age] = count
+
+    for _ in range(days):
+        for age in range(-1, FIRST_REPRODUCTION_CYCLE):
+            ages[age] = ages[age + 1]
+
+        # newly fish
+        ages[FIRST_REPRODUCTION_CYCLE] = ages[-1]
+
+        # fish who just gave birth
+        ages[REPRODUCTION_CYCLE] += ages[-1]
+
+        ages[-1] = 0
+
+    return sum(ages.values())
