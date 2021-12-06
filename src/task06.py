@@ -79,29 +79,21 @@ FIRST_REPRODUCTION_CYCLE = REPRODUCTION_CYCLE + FIRST_CYCLE_DELAY
 
 
 def _solve_part_one(data):
-    return fish_after_days(data[:], 80)
+    return fish_after_days(data, 80)
 
 
 def _solve_part_two(data):
-    return fish_after_days(data[:], 256)
+    return fish_after_days(data, 256)
 
 
 def fish_after_days(fish_ages, days):
-    ages = {age: 0 for age in range(-1, FIRST_REPRODUCTION_CYCLE + 1)}
+    ages = [0] * (FIRST_REPRODUCTION_CYCLE + 1)
 
     for age, count in Counter(fish_ages).items():
         ages[age] = count
 
     for _ in range(days):
-        for age in range(-1, FIRST_REPRODUCTION_CYCLE):
-            ages[age] = ages[age + 1]
+        ages = ages[1:] + ages[:1]
+        ages[REPRODUCTION_CYCLE] += ages[FIRST_REPRODUCTION_CYCLE]
 
-        # newly fish
-        ages[FIRST_REPRODUCTION_CYCLE] = ages[-1]
-
-        # fish who just gave birth
-        ages[REPRODUCTION_CYCLE] += ages[-1]
-
-        ages[-1] = 0
-
-    return sum(ages.values())
+    return sum(ages)
