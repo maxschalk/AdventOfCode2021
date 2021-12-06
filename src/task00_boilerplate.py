@@ -84,7 +84,7 @@ def solve_part_two(data):
     print(_solve_part_two(data))
 
 
-# LOGIC / SOLUTION
+# SOLUTION
 
 def _solve_part_one(data):
     raise NotImplementedError
