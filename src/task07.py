@@ -95,9 +95,7 @@ FUEL_CONSUMPTION = dict()
 
 
 def _fuel_consumption(distance):
-    # if distance not in FUEL_CONSUMPTION:
-    #     FUEL_CONSUMPTION[distance] = sum(range(distance, -1, -1))
-    #
-    # return FUEL_CONSUMPTION[distance]
+    if distance not in FUEL_CONSUMPTION:
+        FUEL_CONSUMPTION[distance] = sum(range(distance, -1, -1))
 
-    return sum(range(distance, -1, -1))
+    return FUEL_CONSUMPTION[distance]
