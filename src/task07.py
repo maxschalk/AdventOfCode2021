@@ -21,13 +21,8 @@ def main(test=False):
     if test:
         solve_test(data)
     else:
-        from timeit import timeit
-        print(timeit(lambda: solve(data), number=1))
-        # solve(data)
+        solve(data)
 
-
-# (328, 328187)
-# (464, 91257582)
 
 if __name__ == '__main__':
     main()
@@ -78,14 +73,8 @@ def _solve_part_one(data):
                key=lambda t: t[1])
 
 
-_DISTANCE_CUMUL_MEMO = dict()
-
-
 def distance_cumul(values, target):
-    if target not in _DISTANCE_CUMUL_MEMO:
-        _DISTANCE_CUMUL_MEMO[target] = sum(map(lambda val: abs(val - target), values))
-
-    return _DISTANCE_CUMUL_MEMO[target]
+    return sum(map(lambda val: abs(val - target), values))
 
 
 def _solve_part_two(data):
@@ -93,14 +82,8 @@ def _solve_part_two(data):
                key=lambda t: t[1])
 
 
-_FUEL_CUMUL_MEMO = dict()
-
-
 def fuel_cumul(values, target):
-    if target not in _FUEL_CUMUL_MEMO:
-        _FUEL_CUMUL_MEMO[target] = sum(map(lambda val: _fuel_consumption(abs(val - target)), values))
-
-    return _FUEL_CUMUL_MEMO[target]
+    return sum(map(lambda val: _fuel_consumption(abs(val - target)), values))
 
 
 _FUEL_CONSUMPTION_MEMO = dict()
