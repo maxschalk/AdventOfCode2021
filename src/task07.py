@@ -78,8 +78,14 @@ def _solve_part_one(data):
                key=lambda t: t[1])
 
 
+_DISTANCE_CUMUL_MEMO = dict()
+
+
 def distance_cumul(values, target):
-    return sum(map(lambda val: abs(val - target), values))
+    if target not in _DISTANCE_CUMUL_MEMO:
+        _DISTANCE_CUMUL_MEMO[target] = sum(map(lambda val: abs(val - target), values))
+
+    return _DISTANCE_CUMUL_MEMO[target]
 
 
 def _solve_part_two(data):
@@ -87,15 +93,21 @@ def _solve_part_two(data):
                key=lambda t: t[1])
 
 
+_FUEL_CUMUL_MEMO = dict()
+
+
 def fuel_cumul(values, target):
-    return sum(map(lambda val: _fuel_consumption(abs(val - target)), values))
+    if target not in _FUEL_CUMUL_MEMO:
+        _FUEL_CUMUL_MEMO[target] = sum(map(lambda val: _fuel_consumption(abs(val - target)), values))
+
+    return _FUEL_CUMUL_MEMO[target]
 
 
-FUEL_CONSUMPTION = dict()
+_FUEL_CONSUMPTION_MEMO = dict()
 
 
 def _fuel_consumption(distance):
-    if distance not in FUEL_CONSUMPTION:
-        FUEL_CONSUMPTION[distance] = sum(range(distance, -1, -1))
+    if distance not in _FUEL_CONSUMPTION_MEMO:
+        _FUEL_CONSUMPTION_MEMO[distance] = sum(range(distance, -1, -1))
 
-    return FUEL_CONSUMPTION[distance]
+    return _FUEL_CONSUMPTION_MEMO[distance]
