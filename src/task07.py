@@ -21,8 +21,13 @@ def main(test=False):
     if test:
         solve_test(data)
     else:
-        solve(data)
+        from timeit import timeit
+        print(timeit(lambda: solve(data), number=1))
+        # solve(data)
 
+
+# (328, 328187)
+# (464, 91257582)
 
 if __name__ == '__main__':
     main()
@@ -38,16 +43,9 @@ def read_input(test: bool):
 
 
 def parse_input(data, test):
-    out = []
-
-    pattern = re.compile(r"(?s)(.+)")
-
-    for line in data:
-        result = pattern.match(line).groups()
-
-        out.append(result)
-
-    return out
+    pattern = re.compile(r",")
+    first_line, *_ = data
+    return list(map(int, pattern.split(first_line)))
 
 
 def solve_test(data):
@@ -57,17 +55,6 @@ def solve_test(data):
         print('-' * 30)
 
         print(f"Part 2 - {_solve_part_two(data)}")
-
-
-def solve_test_individual_lines(data):
-    with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
-
-        print('-' * 30)
-
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
 
 
 def solve(data):
@@ -87,8 +74,30 @@ def solve_part_two(data):
 # SOLUTION
 
 def _solve_part_one(data):
-    print(data)
+    return min(((i, distance_cumul(data, i)) for i in range(min(data), max(data) + 1)),
+               key=lambda t: t[1])
+
+
+def distance_cumul(values, target):
+    return sum(map(lambda val: abs(val - target), values))
 
 
 def _solve_part_two(data):
-    raise NotImplementedError
+    return min(((i, fuel_cumul(data, i)) for i in range(min(data), max(data) + 1)),
+               key=lambda t: t[1])
+
+
+def fuel_cumul(values, target):
+    return sum(map(lambda val: _fuel_consumption(abs(val - target)), values))
+
+
+FUEL_CONSUMPTION = dict()
+
+
+def _fuel_consumption(distance):
+    # if distance not in FUEL_CONSUMPTION:
+    #     FUEL_CONSUMPTION[distance] = sum(range(distance, -1, -1))
+    #
+    # return FUEL_CONSUMPTION[distance]
+
+    return sum(range(distance, -1, -1))
