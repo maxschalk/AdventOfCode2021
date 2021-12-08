@@ -1,10 +1,10 @@
-from src.task07 import main as run_task
+from src.task08 import main as run_task
 
 
 # https://adventofcode.com/2021/
 
 def main():
-    run_task(test=False)
+    run_task(test=True)
 
 
 if __name__ == '__main__':
