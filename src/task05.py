@@ -29,14 +29,11 @@ def read_input():
 def parse_input(data, test):
     out = []
 
+    pattern = re.compile(r"\d+")
+
     for line in data:
-        matches = re.match(r"(\d+,\d+) -> (\d+,\d+)", line)
-        start, end = matches.groups()
-
-        start = tuple(map(int, start.split(',')))
-        end = tuple(map(int, end.split(',')))
-
-        out.append((start, end))
+        start_x, start_y, end_x, end_y = map(int, pattern.findall(line))
+        out.append(((start_x, start_y), (end_x, end_y)))
 
     return out
 
