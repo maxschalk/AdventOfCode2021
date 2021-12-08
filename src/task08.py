@@ -5,6 +5,7 @@ from pathlib import Path
 from contextlib import suppress
 
 from PATHS import INPUT_DIR, TEST_INPUT_DIR
+from src.task08_objects import SignalMapping, SignalMappingSet
 
 FILE_STEM = Path(__file__).stem
 
@@ -77,12 +78,12 @@ def solve_part_two(data):
 # SOLUTION
 
 def _solve_part_one(data):
-    targets = {2, 4, 3, 7}  # 1, 4, 7, 8
+    unique_lengths = {2, 4, 3, 7}  # 1, 4, 7, 8
     count = 0
 
     for _, outputs in data:
         for output_len in map(len, outputs):
-            count += output_len in targets
+            count += output_len in unique_lengths
 
     return count
 
@@ -90,81 +91,6 @@ def _solve_part_one(data):
 def _solve_part_two(data):
     return sum(decode_line(inputs, outputs) for inputs, outputs in data)
 
-
-"""
-acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf
-
-ab -> cf
-
-dab -> acf
-d -> a
-
-eafb -> bcdf
-ef -> bd
-
-cdfbe -> [acdeg, acdfg, abdfg]
-cdfbe -> abdfg
-bcdef -> abdfg
-b -> f
-a -> c
-c -> g
-ef -> bd
-
-gcdfa -> [acdeg, acdfg, abdfg]
-acdfg -> [acdeg, acdfg]
-f -> d
-e -> b
-g -> e
-
-fbcad -> [acdeg, acdfg, abdfg]
-fbcad -> acdfg
-
-
-ab      -> 1            -> cf
-dab     -> 7            -> acf
-eafb    -> 4            -> bcdf
-acedgfb -> 8            -> abcdefg
-cdfbe   -> [2, 3, 5]    -> [acdeg, acdfg, abdfg]
-gcdfa   -> [2, 3, 5]    -> [acdeg, acdfg, abdfg]
-fbcad   -> [2, 3, 5]    -> [acdeg, acdfg, abdfg]
-cefabd  -> [0, 6, 9]    -> [abcefg, abdefg, abcdfg]
-cdfgeb  -> [0, 6, 9]    -> [abcefg, abdefg, abcdfg]
-cagedb  -> [0, 6, 9]    -> [abcefg, abdefg, abcdfg]
-
-abcdefg -> deafgbc
-"""
-
-"""
-     aaaa 
-    b    c
-    b    c
-     dddd 
-    e    f
-    e    f
-     gggg
-
-DIGIT_TO_SIGNAL_MAP = {
-    0: 'abcefg',
-    1: 'cf',
-    2: 'acdeg',
-    3: 'acdfg',
-    4: 'bcdf',
-    5: 'abdfg',
-    6: 'abdefg',
-    7: 'acf',
-    8: 'abcdefg',
-    9: 'abcdfg'
-}
-
-LEN_TO_DIGIT_MAP = {
-    2: [1],
-    3: [7],
-    4: [4],
-    5: [2, 3, 5],
-    6: [0, 6, 9],
-    7: [8]
-}
-"""
 
 DIGIT_TO_SIGNAL_MAP = {
     0: frozenset('abcefg'),
@@ -181,41 +107,15 @@ DIGIT_TO_SIGNAL_MAP = {
 
 SIGNAL_TO_DIGIT_MAP = {signals: digit for digit, signals in DIGIT_TO_SIGNAL_MAP.items()}
 
-DIGIT_TO_LEN_MAP = {digit: len(signals) for digit, signals in DIGIT_TO_SIGNAL_MAP.items()}
-
-LEN_TO_DIGIT_MAP = defaultdict(list)
-
-for digit, len_signals in DIGIT_TO_LEN_MAP.items():
-    LEN_TO_DIGIT_MAP[len_signals].append(digit)
-
-UNIQUE_LENGTHS = {2, 4, 3, 7}
-
-# be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
-
-"""
-1: 'cf'
-4: 'bcdf'
-7: 'acf'
-8: 'abcdefg'
-"""
-
 
 def decode_line(inputs, outputs):
-    solution = dict()
+    signal_mappings = create_signal_mappings(inputs)
 
-    for signals in inputs:
-        possible_digits = LEN_TO_DIGIT_MAP[len(signals)]
-        if len(possible_digits) == 1:
-            digit, *_ = possible_digits
+    sm_set = SignalMappingSet("abcdefg", *signal_mappings)
 
-            solution[signals] = ''.join(DIGIT_TO_SIGNAL_MAP[digit])
-        else:
-            solution[signals] = [''.join(DIGIT_TO_SIGNAL_MAP[digit]) for digit in possible_digits]
+    sm_set.reduce_all()
 
-    # print("\n".join(map(str, sorted(solution.items(), key=lambda t: len(t[0])))))
-
-    while not complete_solution(solution):
-        resolve_solution(solution)
+    solution = sm_set.get_all_unambiguous(as_dict=True)
 
     translation = translate_outputs(outputs, solution)
 
@@ -224,54 +124,26 @@ def decode_line(inputs, outputs):
     return int(result)
 
 
-def complete_solution(solution):
-    return all(map(bool, (solution.get(char) for char in 'abcdefg')))
+def create_signal_mappings(signals):
+    digit_to_len_map = {digit: len(signals) for digit, signals in DIGIT_TO_SIGNAL_MAP.items()}
 
+    len_to_digit_map = defaultdict(list)
+    for digit, len_signals in digit_to_len_map.items():
+        len_to_digit_map[len_signals].append(digit)
 
-def resolve_solution(solutions):
-    initial = list(solutions.items())
+    signal_mappings = []
 
-    for signal_in, signal_possibilites in initial:
-        if isinstance(signal_possibilites, list):
-            continue
+    for signals in signals:
+        possible_digits = len_to_digit_map[len(signals)]
 
-        to_add = [(signal_in, signal_possibilites)]
-        to_del = []
+        if len(possible_digits) == 1:
+            to_signal = DIGIT_TO_SIGNAL_MAP[possible_digits[0]]
+        else:
+            to_signal = [DIGIT_TO_SIGNAL_MAP[digit] for digit in possible_digits]
 
-        for signal_in2, signal_possibilites2 in solutions.items():
-            if signal_in == signal_in2:
-                continue
+        signal_mappings.append(SignalMapping(from_signal=signals, to_signal=to_signal))
 
-            if isinstance(signal_possibilites2, str):
-                if set(signal_in) < set(signal_in2):
-                    new_key = ''.join(set(signal_in2) - set(signal_in))
-                    new_val = ''.join(set(signal_possibilites2) - set(signal_possibilites))
-
-                    to_add.append((new_key, new_val))
-                    to_del.append(signal_in2)
-            else:
-                if set(signal_in) < set(signal_in2):
-                    new_key = ''.join(set(signal_in2) - set(signal_in))
-
-                    new_val = []
-
-                    for possibility in signal_possibilites2:
-                        if not set(signal_possibilites) < set(possibility):
-                            continue
-
-                        new_val.append(''.join(set(possibility) - set(signal_possibilites)))
-
-                    if len(new_val) == 1:
-                        new_val, *_ = new_val
-
-                    to_add.append((new_key, new_val))
-                    to_del.append(signal_in2)
-
-        for key in to_del:
-            del solutions[key]
-
-        for key, val in to_add:
-            solutions[key] = val
+    return signal_mappings
 
 
 def translate_outputs(outputs, solution):
