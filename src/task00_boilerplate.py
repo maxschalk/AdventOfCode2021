@@ -54,7 +54,7 @@ def solve_test(data):
     with suppress(NotImplementedError):
         print(f"Part 1 - {_solve_part_one(data)}")
 
-        print('-' * 30)
+        print('-' * 15)
 
         print(f"Part 2 - {_solve_part_two(data)}")
 
