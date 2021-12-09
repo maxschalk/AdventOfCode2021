@@ -78,9 +78,13 @@ def _solve_part_two(data):
 
     basins = basins_from_low_points(data, low_points)
 
-    biggest, biggest2, biggest3, *_ = sorted(basins, key=len, reverse=True)
+    basins = sorted(basins, key=len, reverse=True)
 
-    return reduce(mul, map(len, (biggest, biggest2, biggest3)))
+    return reduce(mul, map(len, basins[:3]))
+
+
+def _solve_part_two_oneliner(data):
+    return reduce(mul, map(len, sorted(basins_from_low_points(data, all_low_points(data)), key=len, reverse=True)[:3]))
 
 
 def all_low_points(data):
