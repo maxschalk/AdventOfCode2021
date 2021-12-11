@@ -4,7 +4,7 @@ from src.task10 import main as run_task
 # https://adventofcode.com/2021/
 
 def main():
-    run_task(test=True)
+    run_task(test=False)
 
 
 if __name__ == '__main__':

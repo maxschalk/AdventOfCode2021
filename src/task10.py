@@ -38,16 +38,7 @@ def read_input(test: bool):
 
 
 def parse_input(data, test):
-    out = []
-
-    pattern = re.compile(r"(?s)(.+)")
-
-    for line in data:
-        result = pattern.match(line).groups()
-
-        out.append(result)
-
-    return out
+    return data
 
 
 def solve_test(data):
@@ -57,18 +48,6 @@ def solve_test(data):
         print('-' * 15)
 
         print(f"Part 2 - {_solve_part_two(data)}")
-
-
-def solve_test_individual_lines(data):
-    with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
-
-        print('-' * 30)
-
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
-
 
 def solve(data):
     with suppress(NotImplementedError):
@@ -86,9 +65,73 @@ def solve_part_two(data):
 
 # SOLUTION
 
+parentheses = ["()", "[]", "{}", "<>"]
+
+PAIRS = {tuple(p) for p in parentheses}
+
+OPENS = set(map(lambda t: t[0], parentheses))
+CLOSES = set(map(lambda t: t[1], parentheses))
+
+OPEN_TO_CLOSE = {t[0]: t[1] for t in parentheses}
+CLOSE_TO_OPEN = {t[1]: t[0] for t in parentheses}
+
+ILLEGAL_POINTS = {
+    ')': 3,
+    ']': 57,
+    '}': 1197,
+    '>': 25137,
+}
+
+AUTOCOMPLETE_POINTS = {
+    ')': 1,
+    ']': 2,
+    '}': 3,
+    '>': 4,
+}
+
+
 def _solve_part_one(data):
-    print(data)
+    points = 0
+
+    for line in data:
+        opened = []
+
+        for c in line:
+            if c in OPENS:
+                opened.append(c)
+                continue
+
+            if CLOSE_TO_OPEN[c] == opened[-1]:
+                opened.pop()
+            else:
+                points += ILLEGAL_POINTS[c]
+                opened.pop()
+                break
+
+    return points
 
 
 def _solve_part_two(data):
-    raise NotImplementedError
+    line_points = []
+
+    for line in data:
+        opened = []
+
+        for c in line:
+            if c in OPENS:
+                opened.append(c)
+                continue
+
+            if CLOSE_TO_OPEN[c] == opened[-1]:
+                opened.pop()
+            else:
+                break
+        else:
+            points = 0
+            for open in reversed(opened):
+                points *= 5
+                points += AUTOCOMPLETE_POINTS[OPEN_TO_CLOSE[open]]
+
+            line_points.append(points)
+
+    return sorted(line_points)[len(line_points)//2]
