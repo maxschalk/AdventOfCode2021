@@ -1,8 +1,15 @@
+import sys
+
 from src.task13 import main as run_task
 
 
 def main():
-    run_task(test=True)
+    if len(sys.argv) > 1:
+        filename, test, *_ = sys.argv
+    else:
+        test = "True"
+
+    run_task(test=eval(test))
 
 
 if __name__ == '__main__':
