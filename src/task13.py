@@ -16,12 +16,11 @@ TEST_INPUT_FILE = TEST_INPUT_DIR.joinpath(f"{FILE_STEM}_test_input.txt")
 
 def main(test=False):
     data = read_input(test)
-    data = parse_input(data, test)
 
     if test:
-        solve_test(data)
+        solve_test(lambda: parse_input(data, test))
     else:
-        solve(data)
+        solve(lambda: parse_input(data, test))
 
 
 if __name__ == '__main__':
@@ -38,42 +37,41 @@ def read_input(test: bool):
 
 
 def parse_input(data, test):
-    out = []
+    out = ([], [])
 
-    pattern = re.compile(r"(?s)(.+)")
+    coord_pattern = re.compile(r"(\d+),(\d+)")
+    fold_pattern = re.compile(r"fold along ([a-z])=(\d+)")
+
+    sep_line_reached = False
 
     for line in data:
-        result = pattern.match(line).groups()
+        if not sep_line_reached and not line.strip():
+            sep_line_reached = True
+            continue
 
-        out.append(result)
+        if not sep_line_reached:
+            x, y = coord_pattern.match(line).groups()
+            out[0].append({'x': int(x), 'y': int(y)})
+        else:
+            axis, location = fold_pattern.match(line).groups()
+            out[1].append((axis, int(location)))
 
     return out
 
 
 def solve_test(data):
     with suppress(NotImplementedError):
-        print(f"Part 1 - {_solve_part_one(data)}")
+        print(f"Part 1 - {_solve_part_one(data())}")
 
         print('-' * 15)
 
-        print(f"Part 2 - {_solve_part_two(data)}")
-
-
-def solve_test_individual_lines(data):
-    with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
-
-        print('-' * 30)
-
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
+        print(f"Part 2 - {_solve_part_two(data())}")
 
 
 def solve(data):
     with suppress(NotImplementedError):
-        solve_part_one(data)
-        solve_part_two(data)
+        solve_part_one(data())
+        solve_part_two(data())
 
 
 def solve_part_one(data):
@@ -87,8 +85,44 @@ def solve_part_two(data):
 # SOLUTION
 
 def _solve_part_one(data):
-    print(data)
+    dot_coordinates, fold_instructions = data
+
+    for fold_instruction in fold_instructions[:1]:
+        fold(dot_coordinates, fold_instruction)
+
+    return len(set(map(tuple, map(dict.values, dot_coordinates))))
+
+
+def fold(dot_coordinates, fold_instruction):
+    axis, fold_location = fold_instruction
+
+    for dot_coordinate in dot_coordinates:
+        value = dot_coordinate[axis]
+
+        if fold_location >= value:
+            continue
+
+        new_value = value - 2 * (value - fold_location)
+
+        dot_coordinate[axis] = new_value
 
 
 def _solve_part_two(data):
-    raise NotImplementedError
+    dot_coordinates, fold_instructions = data
+
+    for fold_instruction in fold_instructions:
+        fold(dot_coordinates, fold_instruction)
+
+    final_coords = set(map(tuple, map(dict.values, dot_coordinates)))
+
+    max_x = max(map(lambda t: t[0], final_coords))
+    max_y = max(map(lambda t: t[1], final_coords))
+
+    result = [list(' ' * (max_x + 1)) for _ in range(max_y + 1)]
+
+    for y, row in enumerate(result):
+        for x, _ in enumerate(row):
+            if (x, y) in final_coords:
+                result[y][x] = '#'
+
+    print("\n".join(map(lambda r: str.join("", r), result)))
