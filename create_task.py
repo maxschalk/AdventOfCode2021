@@ -1,6 +1,7 @@
+import re
 from shutil import copyfile
 
-from PATHS import SRC_DIR, INPUT_DIR, TEST_INPUT_DIR, BOILERPLATE_FILE
+from PATHS import ROOT_DIR, SRC_DIR, INPUT_DIR, TEST_INPUT_DIR, BOILERPLATE_FILE
 
 
 def main():
@@ -29,6 +30,15 @@ def main():
     script_file_path = SRC_DIR.joinpath(f"task{task_number}.py")
 
     copyfile(BOILERPLATE_FILE.as_posix(), script_file_path)
+
+    with open(ROOT_DIR.joinpath("main.py"), "r+") as file:
+        src_code = file.read()
+
+        src_code = re.sub("src\.task\d{2}", f"src.task{task_number}", src_code)
+        src_code = re.sub("test=False", "test=True", src_code)
+
+        file.seek(0)
+        file.write(src_code)
 
 
 if __name__ == '__main__':
