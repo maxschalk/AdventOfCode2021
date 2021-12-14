@@ -34,8 +34,8 @@ def main():
     with open(ROOT_DIR.joinpath("main.py"), "r+") as file:
         src_code = file.read()
 
-        src_code = re.sub("src\.task\d{2}", f"src.task{task_number}", src_code)
-        src_code = re.sub("test=False", "test=True", src_code)
+        src_code = re.sub(r"src\.task\d{2}", f"src.task{task_number}", src_code)
+        src_code = re.sub(r"test=False", "test=True", src_code)
 
         file.seek(0)
         file.write(src_code)
