@@ -1,11 +1,11 @@
 from pathlib import Path
 from contextlib import suppress
 
-from PATHS import INPUT_DIR, TEST_INPUT_DIR
+from PATHS import TASK_INPUT_DIR, TEST_INPUT_DIR
 
 FILE_STEM = Path(__file__).stem
 
-INPUT_FILE = INPUT_DIR.joinpath(f"{FILE_STEM}_input.txt")
+INPUT_FILE = TASK_INPUT_DIR.joinpath(f"{FILE_STEM}_input.txt")
 TEST_INPUT_FILE = TEST_INPUT_DIR.joinpath(f"{FILE_STEM}_test_input.txt")
 
 TEST = False

@@ -1,7 +1,7 @@
 import re
 from shutil import copyfile
 
-from PATHS import ROOT_DIR, SRC_DIR, INPUT_DIR, TEST_INPUT_DIR, BOILERPLATE_FILE
+from PATHS import ROOT_DIR, SRC_DIR, TASK_INPUT_DIR, TEST_INPUT_DIR, BOILERPLATE_FILE
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
 
     task_number = str(task_number).zfill(2)
 
-    input_file_path = INPUT_DIR.joinpath(f"task{task_number}_input.txt")
+    input_file_path = TASK_INPUT_DIR.joinpath(f"task{task_number}_input.txt")
 
     with open(input_file_path.as_posix(), 'w') as file:
         pass
