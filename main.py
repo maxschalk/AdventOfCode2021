@@ -1,6 +1,6 @@
 import sys
 
-from src.task15 import main as run_task
+from src.task16 import main as run_task
 
 
 def main():
