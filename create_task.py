@@ -5,10 +5,10 @@ from PATHS import ROOT_DIR, SRC_DIR, TASK_INPUT_DIR, TEST_INPUT_DIR, BOILERPLATE
 
 
 def main():
-    task_number = input("Task number > ").strip()
+    task_number = input("Task element > ").strip()
 
     if not task_number.isnumeric():
-        raise ValueError(f"{task_number} is not a number")
+        raise ValueError(f"{task_number} is not a element")
 
     task_number = int(task_number)
 
