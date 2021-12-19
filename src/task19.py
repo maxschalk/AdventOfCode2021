@@ -168,33 +168,30 @@ def get_solved_scanners(data):
     scanner0.position = (0, 0, 0)
 
     solved_scanners = [scanner0]
+    solved_stack = {scanner0}
     unsolved_scanners = list(scanners)
 
-    while unsolved_scanners:
+    while solved_stack:
+        solved_scanner = solved_stack.pop()
 
-        for solved_scanner in solved_scanners:
-            for unsolved_scanner in unsolved_scanners:
+        for unsolved_scanner in unsolved_scanners[:]:
+            check_scanners_for_overlap(solved_scanner, unsolved_scanner)
 
-                check_for_overlap(solved_scanner, unsolved_scanner)
+            if unsolved_scanner.is_solved():
+                solved_scanners.append(unsolved_scanner)
+                solved_stack.add(unsolved_scanner)
 
-                if unsolved_scanner.is_solved():
-                    solved_scanners.append(unsolved_scanner)
-                    unsolved_scanners.remove(unsolved_scanner)
+                unsolved_scanners.remove(unsolved_scanner)
 
     return solved_scanners
 
 
-CHECKED_OVERLAPS = set()
-
-
-def check_for_overlap(solved_scanner, unsolved_scanner):
-    if (solved_scanner.id, unsolved_scanner.id) in CHECKED_OVERLAPS:
-        return
-
+def check_scanners_for_overlap(solved_scanner, unsolved_scanner):
     for _ in range(Scanner.MAX_ROTATIONS):
         distance_count = collections.defaultdict(int)
 
         for beacon0 in solved_scanner.beacons:
+
             for beacon1 in unsolved_scanner.beacons:
                 distance = sub_beacons(beacon0, beacon1)
                 distance_count[distance] += 1
