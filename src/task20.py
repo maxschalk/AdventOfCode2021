@@ -1,5 +1,7 @@
+import collections
 import re
 
+from collections import deque
 from pathlib import Path
 from contextlib import suppress
 
@@ -38,16 +40,9 @@ def read_input(test: bool):
 
 
 def parse_input(data, test):
-    out = []
+    enhancement_algo, sep_line, *image = data
 
-    pattern = re.compile(r"(?s)(.+)")
-
-    for line in data:
-        result = pattern.match(line).groups()
-
-        out.append(result)
-
-    return out
+    return enhancement_algo, list(image)
 
 
 def solve_test(data):
@@ -57,17 +52,6 @@ def solve_test(data):
         print('-' * 15)
 
         print(f"Part 2 - {_solve_part_two(data)}")
-
-
-def solve_test_individual_lines(data):
-    with suppress(NotImplementedError):
-        for line in data:
-            print(f"Part 1: {line}: {_solve_part_one(line)}")
-
-        print('-' * 30)
-
-        for line in data:
-            print(f"Part 2: {line}: {_solve_part_two(line)}")
 
 
 def solve(data):
@@ -86,9 +70,80 @@ def solve_part_two(data):
 
 # SOLUTION
 
+LIGHT_PIXEL = '#'
+DARK_PIXEL = '.'
+
+DIRECTIONS = (
+    (-1, -1), (0, -1), (1, -1),
+    (-1, 0), (0, 0), (1, 0),
+    (-1, 1), (0, 1), (1, 1),
+)
+
+
 def _solve_part_one(data):
-    print(data)
+    return _solve(data, 2)
 
 
 def _solve_part_two(data):
-    raise NotImplementedError
+    return _solve(data, 50)
+
+
+def _solve(data, steps):
+    lookup, image = data
+
+    lookup = lookup.replace('.', '0').replace('#', '1')
+
+    width = len(image[0]) + 2 * steps
+    height = len(image) + 2 * steps
+
+    image = coordinate_map(image, extend_by_steps=steps)
+
+    for step in range(steps):
+        image = enhance_image(lookup, image, width, height, step)
+
+    return sum(image.values())
+
+
+def pixel_to_int(pixel):
+    return 1 if pixel == LIGHT_PIXEL else 0
+
+
+def coordinate_map(image, extend_by_steps):
+    result = dict()
+
+    for y, row in enumerate([*([DARK_PIXEL * len(image[0])] * extend_by_steps),
+                             *image,
+                             *([DARK_PIXEL * len(image[0])] * extend_by_steps)]):
+
+        for x, value in enumerate([*(DARK_PIXEL * extend_by_steps), *row, *(DARK_PIXEL * extend_by_steps)]):
+            result[(x, y)] = pixel_to_int(value)
+
+    return result
+
+
+def enhance_image(lookup, image, width, height, step):
+    result = dict()
+
+    for x in range(width):
+        for y in range(height):
+            lookup_index = str.join('', map(str, neighbors(lookup=lookup, coordinates=image, x=x, y=y, step=step)))
+            lookup_index = int(lookup_index, 2)
+
+            result[(x, y)] = int(lookup[lookup_index])
+
+    return result
+
+
+def neighbors(lookup, coordinates, x, y, step):
+    for dx, dy in DIRECTIONS:
+        yield coordinates.get((x + dx, y + dy), outside_pixel(lookup=lookup, step=step))
+
+
+def outside_pixel(lookup, step):
+    if step % 2 == 0 and lookup[-1] == '0':
+        return 0
+
+    if step % 2 == 1 and lookup[0] == '1':
+        return 1
+
+    return 0
